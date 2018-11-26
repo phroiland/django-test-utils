@@ -12,7 +12,7 @@ To add your own processors, use the TEST_PROCESSOR_MODULES setting::
 """
 
 from django.conf import settings
-from django.utils import importlib
+from importlib import import_module
 
 # Built-in processors
 
@@ -22,6 +22,7 @@ TEST_PROCESSORS = {
 }
 
 _test_processors = {}
+
 
 def register_processor(format, processor_module, processors=None):
     """"Register a new processor.
@@ -36,25 +37,29 @@ def register_processor(format, processor_module, processors=None):
     directly into the global register of processors. Adding processors
     directly is not a thread-safe operation.
     """
-    module = importlib.import_module(processor_module)
+    module = import_module(processor_module)
     if processors is None:
         _test_processors[format] = module
     else:
         processors[format] = module
 
+
 def unregister_processor(format):
     "Unregister a given processor. This is not a thread-safe operation."
     del _test_processors[format]
+
 
 def get_processor(format):
     if not _test_processors:
         _load_test_processors()
     return _test_processors[format].Processor
 
+
 def get_processor_formats():
     if not _test_processors:
         _load_test_processors()
     return list(_test_processors.keys())
+
 
 def _load_test_processors():
     """

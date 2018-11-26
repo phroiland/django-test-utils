@@ -6,7 +6,7 @@ from test_utils.management.commands.relational_dumpdata import _relational_dumpd
 from django.template import Context, Template
 from django.conf import settings
 
-TESTMAKER_TEMPLATE = """\
+TESTMAKER_TEMPLATE = """
 #coding: utf-8
 from django.test import TestCase
 from django.test import Client
@@ -21,9 +21,10 @@ class Testmaker(TestCase):
 {% endif %}
 """
 
+
 class Testmaker(object):
     enabled = False
-    #Have global log and serializer objects so that we never log things twice.
+    # Have global log and serializer objects so that we never log things twice.
     log = None
     serializer = None
 
@@ -34,7 +35,7 @@ class Testmaker(object):
         self.fixture_format = fixture_format
         self.addrport = addrport
         self.kwargs = kwargs
-        #Assume we're writing new tests until proven otherwise
+        # Assume we're writing new tests until proven otherwise
         self.new_tests = True
 
     def prepare(self, insert_middleware=False):
@@ -46,36 +47,34 @@ class Testmaker(object):
             self.insert_middleware()
         Testmaker.enabled = True
 
-
     def set_paths(self):
         if self.app:
             self.app_name = self.app.__name__.split('.')[-2]
             self.base_dir = path.dirname(self.app.__file__)
         else:
             self.app_name = 'tmp'
-            #TODO: Need to make this platform independent.
+            # TODO: Need to make this platform independent.
             self.base_dir = '/tmp/testmaker/'
             if not path.exists(self.base_dir):
                 os.mkdir(self.base_dir)
 
-
-        #Figure out where to store data
+        # Figure out where to store data
         self.fixtures_dir = path.join(self.base_dir, 'fixtures')
         self.fixture_file = path.join(self.fixtures_dir, '%s_testmaker.%s' % (self.app_name, self.fixture_format))
         if self.create_fixtures:
             if not path.exists(self.fixtures_dir):
                 os.mkdir(self.fixtures_dir)
 
-        #Setup test and serializer files
+        # Setup test and serializer files
         self.tests_dir = path.join(self.base_dir, 'tests')
         self.test_file = path.join(self.tests_dir, '%s_testmaker.py' % (self.app_name))
-        #TODO: Make this have the correct file extension based on serializer used
+        # TODO: Make this have the correct file extension based on serializer used
         self.serialize_file = path.join(self.tests_dir, '%s_testdata.serialized' % (self.app_name))
 
         if not path.exists(self.tests_dir):
             os.mkdir(self.tests_dir)
         if path.exists(self.test_file):
-            #Already have tests there.
+            # Already have tests there.
             self.new_tests = False
 
         if self.verbosity > 0:
@@ -85,11 +84,11 @@ class Testmaker(object):
                 print("Logging fixtures to %s" % self.fixture_file)
 
     def setup_logging(self, test_file=None, serialize_file=None):
-        #supress other logging
+        # supress other logging
         logging.basicConfig(level=logging.CRITICAL,
                             filename=path.devnull)
 
-        #Override default if its passed in
+        # Override default if its passed in
         if not test_file:
             test_file = self.test_file
         else:
@@ -102,7 +101,7 @@ class Testmaker(object):
         log.addHandler(handler)
         Testmaker.log = log
 
-        #Override default if its passed in
+        # Override default if its passed in
         if not serialize_file:
             serialize_file = self.serialize_file
         else:
