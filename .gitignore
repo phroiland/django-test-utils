@@ -1,3 +1,4 @@
 *.pyc
 .idea/
 *.bak
+django-test-utils-3/
