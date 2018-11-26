@@ -1,4 +1,5 @@
 import os
+from random import choice, choices
 
 from django.apps import apps
 from django.core.management import call_command
@@ -20,7 +21,7 @@ class Command(BaseCommand):
         ),
         parser.add_argument(
             '-x', '--loud', action='store', dest='verbosity', default='1',
-            type='choice', choices=['0', '1', '2'],
+            type=int, choices=['0', '1', '2'],
             help='Verbosity level; 0=minimal output, 1=normal output, 2=all output'
         ),
         parser.add_argument(

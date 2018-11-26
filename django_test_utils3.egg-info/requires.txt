@@ -1,5 +1,0 @@
-BeautifulSoup4
-twill-3
-django
-six
-django-celery

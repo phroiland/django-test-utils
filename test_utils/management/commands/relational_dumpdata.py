@@ -37,7 +37,7 @@ class Command(BaseCommand):
             help='Specifies the output serialization format for fixtures.'
         ),
         parser.add_argument(
-            '--indent', default=None, dest='indent', type='int',
+            '--indent', default=None, dest='indent', type=int,
             help='Specifies the indent level to use when pretty-printing output'
         ),
         parser.add_argument(

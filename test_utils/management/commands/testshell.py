@@ -1,3 +1,5 @@
+import string
+
 from django.core.management.base import BaseCommand
 
 
@@ -8,7 +10,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '--addrport', action='store', dest='addrport',
-            type='string', default='',
+            type=string, default='',
             help='port number or ipaddr:port to run the server on'
         )
 
