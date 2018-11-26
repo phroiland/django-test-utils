@@ -5,7 +5,7 @@ import os
 from django.conf import settings
 from django.db import connections
 
-from base import Plugin
+from .base import Plugin
 
 
 LOG = logging.getLogger('crawler')
@@ -75,7 +75,7 @@ class QueryCount(Plugin):
             if delta > 0:
                 deltas[k] = delta
 
-        for k, v in sorted(deltas.items(), reverse=True):
+        for k, v in sorted(list(deltas.items()), reverse=True):
             if v > 50:
                 log_f = LOG.critical
             elif v > 20:

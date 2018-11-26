@@ -12,7 +12,7 @@ import re
 
 import tidylib
 
-from base import Plugin
+from .base import Plugin
 
 # Based on http://stackoverflow.com/questions/92438/stripping-non-printable-characters-from-a-string-in-python
 #
@@ -22,7 +22,7 @@ from base import Plugin
 # XML parsers to choke
 
 CONTROL_CHAR_RE = re.compile('[%s]' % "".join(
-    re.escape(unichr(c)) for c in range(0, 8) + range(14, 31) + range(127, 160)
+    re.escape(chr(c)) for c in list(range(0, 8)) + list(range(14, 31)) + list(range(127, 160))
 ))
 
 LOG = logging.getLogger("crawler")
@@ -86,7 +86,7 @@ class Tidy(Plugin):
             }
         )
 
-        messages = filter(None, (l.strip() for l in messages.split("\n")))
+        messages = [_f for _f in (l.strip() for l in messages.split("\n")) if _f]
 
         errors = []
         warnings = []

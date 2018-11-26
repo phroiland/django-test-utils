@@ -6,7 +6,7 @@ from django.template.defaultfilters import filesizeformat
 
 from guppy import hpy
 
-from base import Plugin
+from .base import Plugin
 
 LOG = logging.getLogger("crawler")
 
@@ -45,8 +45,8 @@ class Heap(Plugin):
     def finish_run(self, sender, **kwargs):
         "Print the most heap consumed by a view"
 
-        alist = sorted(self.heap_urls.iteritems(),
-            key=lambda (k,v): (v,k),
+        alist = sorted(iter(self.heap_urls.items()),
+            key=lambda k_v: (k_v[1],k_v[0]),
             reverse=True
         )
 

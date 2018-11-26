@@ -17,7 +17,7 @@ DISCARD_CONTEXT_KEYS = []
 
 def safe_dict(dict):
     new_dic = {}
-    for key,val in dict.iteritems():
+    for key,val in dict.items():
         new_dic[key] = mark_safe(val)
     return new_dic
 
@@ -103,7 +103,7 @@ class Processer(object):
         for d in context.dicts:
             if isinstance(d, Context):
                 keys += self._get_context_keys(d)
-            keys += d.keys()
+            keys += list(d.keys())
         return keys
 
     def _log_context(self, context):
@@ -131,5 +131,5 @@ class Processer(object):
                 #Avoid memory addy's which will change.
                 if not re.search("0x\w+", val):
                     self.log.info(template.render(con))
-            except UnicodeDecodeError, e:
+            except UnicodeDecodeError as e:
                 pass

@@ -17,14 +17,14 @@ class DiffTestCaseMixin(object):
         if isinstance(first, (tuple, list)):
             first = [pformat(d) for d in first]
         elif isinstance(first, dict):
-            first = ["%s:%s" % (pformat(key), pformat(val)) for key,val in first.iteritems()]
+            first = ["%s:%s" % (pformat(key), pformat(val)) for key,val in first.items()]
         else:
             first = [pformat(first)]
 
         if isinstance(second, (tuple, list)):
             second = [pformat(d) for d in second]
         elif isinstance(second, dict):
-            second = ["%s:%s" % (pformat(key), pformat(val)) for key,val in second.iteritems()]
+            second = ["%s:%s" % (pformat(key), pformat(val)) for key,val in second.items()]
         else:
             second = [pformat(second)]
 
@@ -37,4 +37,4 @@ class DiffTestCaseMixin(object):
         """If not first == second, fail with a unified diff."""
         if not first == second:
             msg = self.get_diff_msg(first, second, fromfile, tofile)
-            raise self.failureException, msg
+            raise self.failureException(msg)

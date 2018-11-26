@@ -56,7 +56,7 @@ def get_serializer(format):
 def get_serializer_formats():
     if not _test_serializers:
         _load_test_serializers()
-    return _test_serializers.keys()
+    return list(_test_serializers.keys())
 
 def get_deserializer(format):
     if not _test_serializers:

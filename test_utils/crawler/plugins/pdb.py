@@ -1,6 +1,6 @@
 import logging
 
-from base import Plugin
+from .base import Plugin
 
 LOG = logging.getLogger("crawler")
 
@@ -17,6 +17,6 @@ class Pdb(Plugin):
                 try:
                     import ipdb; ipdb.set_trace()
                 except ImportError:
-                    import pdb; pdb.set_trace()
+                    from . import pdb; pdb.set_trace()
 
 PLUGIN = Pdb

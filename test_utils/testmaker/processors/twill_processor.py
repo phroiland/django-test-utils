@@ -1,4 +1,4 @@
-import base
+from . import base
 
 TEST_TEMPLATE = """go {{ path }}"""
 

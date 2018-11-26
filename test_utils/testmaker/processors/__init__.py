@@ -54,7 +54,7 @@ def get_processor(format):
 def get_processor_formats():
     if not _test_processors:
         _load_test_processors()
-    return _test_processors.keys()
+    return list(_test_processors.keys())
 
 def _load_test_processors():
     """

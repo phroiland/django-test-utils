@@ -40,9 +40,9 @@ should look a little something like this:
 
 .. sourcecode:: python
 
-    eric@Odin:~/EH$ ./manage.py testmaker mine
+    jon@Odin:~/EH$ ./manage.py testmaker mine
     Handling app 'mine'
-    Logging tests to /home/eric/Python/EH/mine/tests/mine_testmaker.py
+    Logging tests to /home/jon/dev/tests/mine_testmaker.py
     Appending to current log file
     Inserting TestMaker logging server...
     Validating models...

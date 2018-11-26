@@ -3,7 +3,7 @@ import logging
 import csv
 import os
 
-from base import Plugin
+from .base import Plugin
 
 LOG = logging.getLogger('crawler')
 
@@ -40,7 +40,7 @@ class Time(Plugin):
 
     def finish_run(self, sender, **kwargs):
         "Print the longest time it took for pages to load"
-        alist = sorted(self.timed_urls.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        alist = sorted(iter(self.timed_urls.items()), key=lambda k_v: (k_v[1],k_v[0]), reverse=True)
         for url, ttime in alist[:10]:
             LOG.info("%s took %f", url, ttime)
 

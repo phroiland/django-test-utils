@@ -1,4 +1,4 @@
-import base
+from . import base
 try:
     from django.utils import simplejson as json
 except ImportError:
@@ -17,7 +17,7 @@ class Serializer(base.Serializer):
         try:
             self.ser.info(json.dumps(request_dict))
             self.ser.info(REQUEST_UNIQUE_STRING)
-        except TypeError, e:
+        except TypeError as e:
             #Can't serialize wsgi.error objects
             pass
 
@@ -27,6 +27,6 @@ class Serializer(base.Serializer):
         try:
             self.ser.info(json.dumps(response_dict))
             self.ser.info(RESPONSE_UNIQUE_STRING)
-        except TypeError, e:
+        except TypeError as e:
             #Can't serialize wsgi.error objects
             pass

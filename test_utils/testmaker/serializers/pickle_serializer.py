@@ -1,5 +1,5 @@
-import base
-import cPickle as pickle
+from . import base
+import pickle as pickle
 from test_utils.testmaker.serializers import REQUEST_UNIQUE_STRING, RESPONSE_UNIQUE_STRING
 
 class Serializer(base.Serializer):

@@ -9,14 +9,12 @@ Source Code
 -----------
 
 The code for Django-test-utils is available at `Github
-<http://github.com/ericholscher/django-test-utils/tree/master>`_ and
-`Pypi <http://pypi.python.org/pypi/django-test-utils/0.2>`_.
+<http://github.com/phroiland/django-test-utils/tree/master>`_ and
+`Pypi <http://pypi.python.org/pypi/django-test-utils3/3.11.18>`_.
 
-If you have any questions, please contact `Eric Holscher <http://ericholscher.com>`_ at eric@ericholscher.com
+If you have any questions, please contact `Jon Froiland <jon.froiland@gmail.com>`_ at jon.froiland@gmail.com
 
-There is a `Bug Tracker <http://github.com/ericholscher/django-test-utils/issues>`_ at Github as well, if you find any defects with the code. Pull requests and patches are better than filing a bug.
-
-The mailing list for the project is located on Google Groups: http://groups.google.com/group/django-testing
+There is a `Bug Tracker <http://github.com/phroiland/django-test-utils/issues>`_ at Github as well, if you find any defects with the code. Pull requests and patches are better than filing a bug.
 
 Contents
 --------

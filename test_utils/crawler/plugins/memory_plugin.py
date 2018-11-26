@@ -2,7 +2,7 @@ import csv
 import logging
 import os
 
-from base import Plugin
+from .base import Plugin
 
 LOG = logging.getLogger("crawler")
 
@@ -66,7 +66,7 @@ class Memory(Plugin):
 
     def finish_run(self, sender, **kwargs):
         "Print the most memory consumed by a view"
-        alist = sorted(self.memory_urls.iteritems(), key=lambda (k,v): (v,k), reverse=True)
+        alist = sorted(iter(self.memory_urls.items()), key=lambda k_v: (k_v[1],k_v[0]), reverse=True)
         for url, mem in alist[:10]:
             LOG.info("%s took %f of memory", url, mem)
 

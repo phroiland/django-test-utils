@@ -39,11 +39,11 @@ For more information about twill, see:
 """
 
 # allows us to import global twill as opposed to this module
-from __future__ import absolute_import
+
 
 # TODO: import all names with a _-prefix to keep the namespace clean with the twill stuff?
-import urlparse
-import cookielib
+import urllib.parse
+import http.cookiejar
 
 import twill
 import twill.commands
@@ -158,7 +158,7 @@ def teardown(host=None, port=None):
     if key in INSTALLED:
         key_to_delete = key
     if not key in INSTALLED and both_missing and len(INSTALLED) > 0:
-        host, port = key_to_delete = INSTALLED.keys()[-1]
+        host, port = key_to_delete = list(INSTALLED.keys())[-1]
 
     if key_to_delete:
         _, old_propagate = INSTALLED[key_to_delete]
@@ -210,14 +210,14 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
             default = True    # default is implied
 
         if INSTALLED:
-            netloc = '%s:%s' % INSTALLED.keys()[-1]
-            urlbits = urlparse.urlsplit(url)
+            netloc = '%s:%s' % list(INSTALLED.keys())[-1]
+            urlbits = urllib.parse.urlsplit(url)
             if not urlbits[0]:
                 if default:
                     # force "undiverge"
                     self.diverged = False
                 if not self.diverged:
-                    url = urlparse.urlunsplit(('http', netloc)+urlbits[2:])
+                    url = urllib.parse.urlunsplit(('http', netloc)+urlbits[2:])
             else:
                 self.diverged = True
 
@@ -253,7 +253,7 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
         if not 'django.contrib.sessions' in settings.INSTALLED_APPS:
             return False
 
-        host, port = INSTALLED.keys()[-1]
+        host, port = list(INSTALLED.keys())[-1]
 
         # determine the user we want to login
         user = credentials.pop('user', None)
@@ -276,7 +276,7 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
         request.session.save()
 
         # set the cookie to represent the session
-        self.cj.set_cookie(cookielib.Cookie(
+        self.cj.set_cookie(http.cookiejar.Cookie(
             version=None,
             name=settings.SESSION_COOKIE_NAME,
             value=request.session.session_key,
@@ -305,7 +305,7 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
 
         Based on ``django.test.client.Client.logout``.
         """
-        host, port = INSTALLED.keys()[-1]
+        host, port = list(INSTALLED.keys())[-1]
         for cookie in self.cj:
             if cookie.name == settings.SESSION_COOKIE_NAME \
                     and cookie.domain==host \

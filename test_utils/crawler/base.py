@@ -1,7 +1,7 @@
-from HTMLParser import HTMLParseError
+from html.parser import HTMLParseError
 import logging
 import os
-import urlparse
+import urllib.parse
 
 from django.conf import settings
 from django.db import transaction
@@ -19,7 +19,7 @@ try:
     def link_extractor(html):
         try:
             tree = lxml.html.document_fromstring(html)
-        except lxml.etree.ParseError, e:
+        except lxml.etree.ParseError as e:
             raise HTMLParseError(str(e), e.position)
 
         for element, attribute, link, pos in tree.iterlinks():
@@ -27,7 +27,7 @@ try:
 except ImportError:
     LOG.info("Processing documents with HTMLParser; install lxml for greater performance")
 
-    from HTMLParser import HTMLParser
+    from html.parser import HTMLParser
 
     def link_extractor(html):
         class LinkExtractor(HTMLParser):
@@ -74,7 +74,7 @@ class Crawler(object):
         if auth:
             printable_auth = ', '.join(
                 '%s: %s' % (key, cleanse_setting(key.upper(), value))
-                for key, value in auth.items())
+                for key, value in list(auth.items()))
             LOG.info('Log in with %s' % printable_auth)
             self.c.login(**auth)
 
@@ -86,7 +86,7 @@ class Crawler(object):
                 self.plugins.append(plug())
 
     def _parse_urls(self, url, resp):
-        parsed = urlparse.urlparse(url)
+        parsed = urllib.parse.urlparse(url)
 
         if resp['Content-Type'] == "text/html; charset=utf-8":
             html = resp.content.decode("utf-8")
@@ -96,7 +96,7 @@ class Crawler(object):
         returned_urls = []
 
         for link in link_extractor(html):
-            parsed_href = urlparse.urlparse(link)
+            parsed_href = urllib.parse.urlparse(link)
 
             if not parsed_href.path:
                 continue
@@ -114,7 +114,7 @@ class Crawler(object):
                 returned_urls.append(link)
             else:
                 # We'll use urlparse's urljoin since that handles things like <a href="../foo">
-                returned_urls.append(urlparse.urljoin(url, link))
+                returned_urls.append(urllib.parse.urljoin(url, link))
 
         return returned_urls
 
@@ -123,8 +123,8 @@ class Crawler(object):
         Takes a url, and returns it with a list of links
         This uses the Django test client.
         """
-        parsed = urlparse.urlparse(to_url)
-        request_dict = dict(urlparse.parse_qsl(parsed.query))
+        parsed = urllib.parse.urlparse(to_url)
+        request_dict = dict(urllib.parse.parse_qsl(parsed.query))
         url_path = parsed.path
 
         #url_path now contains the path, request_dict contains get params
@@ -183,9 +183,9 @@ class Crawler(object):
             transaction.enter_transaction_management()
             try:
                 resp, returned_urls = self.get_url(from_url, to_url)
-            except HTMLParseError, e:
+            except HTMLParseError as e:
                 LOG.error("%s: unable to parse invalid HTML: %s", to_url, e)
-            except Exception, e:
+            except Exception as e:
                 LOG.exception("%s had unhandled exception: %s", to_url, e)
                 continue
             finally:
@@ -198,7 +198,7 @@ class Crawler(object):
                     LOG.debug("Skipping %s - outside scope of %s", base_url, self.base_url)
                     continue
 
-                if base_url not in [to for dep,fro,to in self.not_crawled] and not self.crawled.has_key(base_url):
+                if base_url not in [to for dep,fro,to in self.not_crawled] and base_url not in self.crawled:
                     self.not_crawled.append((current_depth+1, to_url, base_url))
 
         test_signals.finish_run.send(self)

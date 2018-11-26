@@ -1,4 +1,4 @@
-from base import Plugin
+from .base import Plugin
 
 class Graph(Plugin):
     "Make pretty graphs of your requests"
@@ -18,7 +18,7 @@ class Graph(Plugin):
                 self.graph.add_edge(str(fro), str(url))
 
     def finish_run(self, sender, **kwargs):
-        print "Making graph of your URLs, this may take a while"
+        print("Making graph of your URLs, this may take a while")
         self.graph.layout(prog='fdp')
         self.graph.draw('my_urls.png')
 

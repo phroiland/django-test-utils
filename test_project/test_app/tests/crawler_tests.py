@@ -27,12 +27,12 @@ class CrawlerTests(TestCase):
     def test_basic_crawling(self):
         c = Crawler('/')
         c.run()
-        self.assertEqual(c.crawled, {'/': True, u'/1': True, u'/2': True})
+        self.assertEqual(c.crawled, {'/': True, '/1': True, '/2': True})
 
     def test_relative_crawling(self):
         c = Crawler('/1')
         c.run()
-        self.assertEqual(c.crawled, {u'/1': True})
+        self.assertEqual(c.crawled, {'/1': True})
 
     def test_url_plugin(self):
         conf_urls = {'this_wont_be_crawled': True}

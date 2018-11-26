@@ -1,7 +1,7 @@
 import logging
 import re
 
-from base import Plugin
+from .base import Plugin
 
 LOG = logging.getLogger("crawler")
 
@@ -15,7 +15,7 @@ class URLConf(Plugin):
         normal_patterns = list()
         admin_patterns = list()
 
-        for pattern in sender.conf_urls.keys():
+        for pattern in list(sender.conf_urls.keys()):
             pattern = pattern.replace('^', '').replace('$', '').replace('//', '/')
             curr = re.compile(pattern)
 

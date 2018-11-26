@@ -13,6 +13,6 @@ setup(
     include_package_data=True,
     install_requires=[
         'BeautifulSoup4',
-        'twill-3',
+        'twill-3', 'django', 'six', 'django-celery'
     ]
 )
