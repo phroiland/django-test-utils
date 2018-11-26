@@ -2,3 +2,6 @@
 .idea/
 *.bak
 django-test-utils-3/
+build/
+dist/
+django_test_utils3.egg-info/
