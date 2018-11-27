@@ -4,7 +4,7 @@ import time
 
 from django.template.defaultfilters import slugify as base_slugify
 from django.template import Template, Context
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from test_utils.templatetags import TemplateParser
@@ -12,14 +12,16 @@ from test_utils.templatetags import TemplateParser
 TEST_TEMPLATE = 'Override in Subclass'
 STATUS_TEMPLATE = 'Override in Subclass'
 CONTEXT_TEMPLATE = 'Override in Subclass'
-#DISCARD_CONTEXT_KEYS = ('LANGUAGES',)
+# DISCARD_CONTEXT_KEYS = ('LANGUAGES',)
 DISCARD_CONTEXT_KEYS = []
+
 
 def safe_dict(dict):
     new_dic = {}
-    for key,val in dict.items():
+    for key, val in dict.items():
         new_dic[key] = mark_safe(val)
     return new_dic
+
 
 def slugify(toslug):
     """
@@ -27,13 +29,14 @@ def slugify(toslug):
     """
     return re.sub("-", "_", base_slugify(toslug))
 
+
 class Processer(object):
     """Processes the serialized data. Generally to create some sort of test cases"""
 
     def __init__(self, name):
         self.name = name
         self.log = logging.getLogger('testprocessor')
-        #self.log = logging.getLogger('testprocessor-%s' % self.name)
+        # self.log = logging.getLogger('testprocessor-%s' % self.name)
         self.data = {}
 
     def shall_we_proceed(self, request):
@@ -57,8 +60,8 @@ class Processer(object):
             self._log_status(response)
             if response.context and response.status_code != 404:
                 self._log_context(response.context)
-                #This is where template tag outputting would go
-                #Turned off until it gets betterer
+                # This is where template tag outputting would go
+                # Turned off until it gets betterer
                 """
                 parser = TemplateParser(response.template[0], context)
                 parser.parse()
@@ -121,14 +124,14 @@ class Processer(object):
             keys.discard(discardkey)
 
         for key in keys:
-            val = force_unicode(context[key])
+            val = force_text(context[key])
             con = {
                 'key': key,
                 'value': val,
             }
             con = Context(safe_dict(con))
             try:
-                #Avoid memory addy's which will change.
+                # Avoid memory addy's which will change.
                 if not re.search("0x\w+", val):
                     self.log.info(template.render(con))
             except UnicodeDecodeError as e:
