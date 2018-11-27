@@ -77,7 +77,7 @@ class Processer(object):
         request_str = "'%s', {" % request.path
         for dikt in list(request.GET):
             for arg in dikt:
-                request_str += "'%s': '%s', " % (arg, request.GET[arg])
+                request_str += "'%s': '%s', " % (arg, request.POST.get[arg])
         request_str += "}"
 
         template = Template(self._get_template('test'))
