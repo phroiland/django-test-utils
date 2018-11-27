@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-test-utils3',
-    version='0.11.22',
+    version='0.11.23',
     packages=find_packages(),
     author='Jon Froiland',
     author_email='jon@crowdkeep.com',
@@ -15,6 +15,6 @@ setup(
     include_package_data=True,
     install_requires=[
         'BeautifulSoup4',
-        'twill-3', 'django', 'six', 'django-celery'
+        'twill3', 'django', 'six', 'django-celery'
     ]
 )
