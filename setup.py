@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-test-utils3',
-    version='0.11.9',
+    version='0.11.10',
     packages=find_packages(),
     author='Jon Froiland',
     author_email='jon@crowdkeep.com',

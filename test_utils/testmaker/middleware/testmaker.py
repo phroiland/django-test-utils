@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.test import Client
-from django.test.utils import setup_test_environment
+from django.test.utils import setup_test_environment, teardown_test_environment
 from django.template import Template, Context
 
 from test_utils.testmaker import processors
@@ -67,6 +67,7 @@ class TestMakerMiddleware(object):
                 response = c.get(request.path, getdict)
                 self.serializer.save_response(request, response)
                 self.processor.save_response(request, response)
+                teardown_test_environment()
         return None
 
     def process_response(self, request, response):

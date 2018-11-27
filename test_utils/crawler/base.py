@@ -16,6 +16,8 @@ LOG = logging.getLogger('crawler')
 
 try:
     import lxml.html
+
+
     def link_extractor(html):
         try:
             tree = lxml.html.document_fromstring(html)
@@ -29,13 +31,14 @@ except ImportError:
 
     from html.parser import HTMLParser
 
+
     def link_extractor(html):
         class LinkExtractor(HTMLParser):
             links = set()
 
             def handle_starttag(self, tag, attrs):
                 self.links.update(
-                    v for k, v in attrs if k == "href" or k =="src"
+                    v for k, v in attrs if k == "href" or k == "src"
                 )
 
         parser = LinkExtractor()
@@ -65,8 +68,8 @@ class Crawler(object):
         else:
             self.output_dir = None
 
-        #These two are what keep track of what to crawl and what has been.
-        self.not_crawled = [(0, 'START',self.base_url)]
+        # These two are what keep track of what to crawl and what has been.
+        self.not_crawled = [(0, 'START', self.base_url)]
         self.crawled = {}
 
         self.c = Client(REMOTE_ADDR='127.0.0.1')
@@ -82,7 +85,7 @@ class Crawler(object):
         for plug in Plugin.__subclasses__():
             active = getattr(plug, 'active', True)
             if active:
-                #TODO: Check if plugin supports writing CSV (or to a file in general?)
+                # TODO: Check if plugin supports writing CSV (or to a file in general?)
                 self.plugins.append(plug())
 
     def _parse_urls(self, url, resp):
@@ -104,7 +107,7 @@ class Crawler(object):
             if parsed_href.scheme and not parsed_href.netloc.startswith("testserver"):
                 LOG.debug("Skipping external link: %s", link)
                 continue
-                
+
             if parsed_href.path.startswith(settings.STATIC_URL) or \
                     parsed_href.path.startswith(settings.MEDIA_URL):
                 LOG.debug("Skipping static/media link: %s", link)
@@ -127,7 +130,7 @@ class Crawler(object):
         request_dict = dict(urllib.parse.parse_qsl(parsed.query))
         url_path = parsed.path
 
-        #url_path now contains the path, request_dict contains get params
+        # url_path now contains the path, request_dict contains get params
 
         LOG.debug("%s: link to %s with parameters %s", from_url, to_url, request_dict)
 
@@ -145,12 +148,12 @@ class Crawler(object):
                 return self.get_url(from_url, location)
             else:
                 LOG.info("%s: not following off-site redirect to %s", to_url, location)
-                return (resp, ())
+                return resp, ()
         elif 400 <= resp.status_code < 600:
             # We'll avoid logging a warning for HTTP statuses which aren't in the
             # official error ranges:
             LOG.warning("%s links to %s, which returned HTTP status %d", from_url, url_path, resp.status_code)
-            return (resp, ())
+            return resp, ()
 
         if resp['Content-Type'].startswith("text/html"):
             returned_urls = self._parse_urls(to_url, resp)
@@ -158,7 +161,7 @@ class Crawler(object):
         else:
             returned_urls = list()
 
-        return (resp, returned_urls)
+        return resp, returned_urls
 
     def run(self, max_depth=3):
         for p in self.plugins:
@@ -175,7 +178,7 @@ class Crawler(object):
         self.c.get(*self.not_crawled[0][-1])
 
         while self.not_crawled:
-            #Take top off not_crawled and evaluate it
+            # Take top off not_crawled and evaluate it
             current_depth, from_url, to_url = self.not_crawled.pop(0)
             if current_depth > max_depth:
                 continue
@@ -192,14 +195,14 @@ class Crawler(object):
                 transaction.rollback()
 
             self.crawled[to_url] = True
-            #Find its links that haven't been crawled
+            # Find its links that haven't been crawled
             for base_url in returned_urls:
                 if not self.ascend and not base_url.startswith(self.base_url):
                     LOG.debug("Skipping %s - outside scope of %s", base_url, self.base_url)
                     continue
 
-                if base_url not in [to for dep,fro,to in self.not_crawled] and base_url not in self.crawled:
-                    self.not_crawled.append((current_depth+1, to_url, base_url))
+                if base_url not in [to for dep, fro, to in self.not_crawled] and base_url not in self.crawled:
+                    self.not_crawled.append((current_depth + 1, to_url, base_url))
 
         test_signals.finish_run.send(self)
 
