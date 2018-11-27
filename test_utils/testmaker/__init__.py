@@ -49,7 +49,7 @@ class Testmaker(object):
 
     def set_paths(self):
         if self.app:
-            self.app_name = self.app.__str__.split('.')[-2]
+            self.app_name = self.app.__name__.split('.')[-2]
             self.base_dir = path.dirname(self.app.__file__)
         else:
             self.app_name = 'tmp'
