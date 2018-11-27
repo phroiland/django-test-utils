@@ -75,7 +75,7 @@ class Processer(object):
     def _log_request(self, request):
         method = request.method.lower()
         request_str = "'%s', {" % request.path
-        for dikt in request.GET.dicts:
+        for dikt in list(request.GET):
             for arg in dikt:
                 request_str += "'%s': '%s', " % (arg, request.GET[arg])
         request_str += "}"
