@@ -41,34 +41,29 @@ For more information about twill, see:
 # allows us to import global twill as opposed to this module
 
 
+import http.cookiejar
 # TODO: import all names with a _-prefix to keep the namespace clean with the twill stuff?
 import urllib.parse
-import http.cookiejar
+from collections import OrderedDict
 
-import twill
-import twill.commands
-import twill.browser
-
+import twill3
+import twill3.browser
+import twill3.commands
+import django.db
 from django.conf import settings
-from django.core.servers.basehttp import AdminMediaHandler
-from django.core.handlers.wsgi import WSGIHandler
-from django.core.urlresolvers import reverse, NoReverseMatch
-from django.http import HttpRequest
-from django.utils.datastructures import SortedDict
 from django.contrib import auth
 from django.core import signals
-from django.db import close_connection
-
-
+import django.core.servers.basehttp
+from django.core.urlresolvers import reverse, NoReverseMatch
+from django.http import HttpRequest
 # make available through this module
-from twill.commands import *
+from twill3.commands import *
 
-__all__ = ('INSTALLED', 'setup', 'teardown', 'reverse',) + tuple(twill.commands.__all__)
-
+__all__ = ('INSTALLED', 'setup', 'teardown', 'reverse',) + tuple(twill3.commands.__all__)
 
 DEFAULT_HOST = '127.0.0.1'
 DEFAULT_PORT = 9090
-INSTALLED = SortedDict()   # keep track of the installed hooks
+INSTALLED = OrderedDict()  # keep track of the installed hooks
 
 
 class DjangoWsgiFix(object):
@@ -82,15 +77,16 @@ class DjangoWsgiFix(object):
     Django's own test client does the same thing; it would reinstall
     the signal handler if used in combination with us.
     """
+
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
-        signals.request_finished.disconnect(close_connection)
+        signals.request_finished.disconnect(django.db.close_old_connections())
         try:
             return self.app(environ, start_response)
         finally:
-            signals.request_finished.connect(close_connection)
+            signals.request_finished.connect(django.db.close_old_connections())
 
 
 def setup(host=None, port=None, allow_xhtml=True, propagate=True):
@@ -117,8 +113,8 @@ def setup(host=None, port=None, allow_xhtml=True, propagate=True):
 
     if not key in INSTALLED:
         # installer wsgi handler
-        app = DjangoWsgiFix(AdminMediaHandler(WSGIHandler()))
-        twill.add_wsgi_intercept(host, port, lambda: app)
+        app = DjangoWsgiFix(django.core.servers.basehttp.get_internal_wsgi_application())
+        twill3.add_wsgi_intercept(host, port, lambda: app)
 
         # start browser fresh
         browser = get_browser()
@@ -171,7 +167,7 @@ def teardown(host=None, port=None):
 
     # note that our return value is just a guess according to our
     # own records, we pass the request on to twill in any case
-    twill.remove_wsgi_intercept(host, port)
+    twill3.remove_wsgi_intercept(host, port)
     return result
 
 
@@ -184,10 +180,10 @@ def _enable_xhtml(browser, enable):
     factory = browser._browser._factory
     factory.basic_factory._response_type_finder._allow_xhtml = \
         factory.soup_factory._response_type_finder._allow_xhtml = \
-            enable
+        enable
 
 
-class _EasyTwillBrowser(twill.browser.TwillBrowser):
+class _EasyTwillBrowser(twill3.browser.TwillBrowser):
     """Custom version of twill's browser class that defaults relative
     URLs to the last installed hook, if available.
 
@@ -200,28 +196,28 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
         super(_EasyTwillBrowser, self).__init__(*args, **kwargs)
 
     def go(self, url, args=None, kwargs=None, default=None):
-        assert not ((args or kwargs) and default==False)
+        assert not ((args or kwargs) and default is False)
 
         try:
             url = reverse(url, args=args, kwargs=kwargs)
         except NoReverseMatch:
             pass
         else:
-            default = True    # default is implied
+            default = True  # default is implied
 
         if INSTALLED:
-            netloc = '%s:%s' % list(INSTALLED.keys())[-1]
+            netloc = '%s' % list(INSTALLED.keys())[-1]
             urlbits = urllib.parse.urlsplit(url)
             if not urlbits[0]:
                 if default:
                     # force "undiverge"
                     self.diverged = False
                 if not self.diverged:
-                    url = urllib.parse.urlunsplit(('http', netloc)+urlbits[2:])
+                    url = urllib.parse.urlunsplit(('http', netloc) + urlbits[2:])
             else:
                 self.diverged = True
 
-        if self._testing_:   # hack that makes it simple for us to test this
+        if self._testing_:  # hack that makes it simple for us to test this
             return url
         return super(_EasyTwillBrowser, self).go(url)
 
@@ -280,9 +276,9 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
             version=None,
             name=settings.SESSION_COOKIE_NAME,
             value=request.session.session_key,
-            port=str(port),   # must be a string
-            port_specified = False,
-            domain=host, #settings.SESSION_COOKIE_DOMAIN,
+            port=str(port),  # must be a string
+            port_specified=False,
+            domain=host,  # settings.SESSION_COOKIE_DOMAIN,
             domain_specified=True,
             domain_initial_dot=False,
             path='/',
@@ -308,8 +304,8 @@ class _EasyTwillBrowser(twill.browser.TwillBrowser):
         host, port = list(INSTALLED.keys())[-1]
         for cookie in self.cj:
             if cookie.name == settings.SESSION_COOKIE_NAME \
-                    and cookie.domain==host \
-                    and (not cookie.port or str(cookie.port)==str(port)):
+                    and cookie.domain == host \
+                    and (not cookie.port or str(cookie.port) == str(port)):
                 session = __import__(settings.SESSION_ENGINE, {}, {}, ['']).SessionStore()
                 session.delete(session_key=cookie.value)
                 self.cj.clear(cookie.domain, cookie.path, cookie.name)
@@ -324,18 +320,22 @@ def go(*args, **kwargs):
     browser.go(*args, **kwargs)
     return browser.get_url()
 
+
 def login(*args, **kwargs):
     return get_browser().login(*args, **kwargs)
+
 
 def logout(*args, **kwargs):
     return get_browser().logout(*args, **kwargs)
 
+
 def reset_browser(*args, **kwargs):
     # replace the default ``reset_browser`` to ensure
     # that our custom browser class is used
-    result = twill.commands.reset_browser(*args, **kwargs)
-    twill.commands.browser = _EasyTwillBrowser()
+    result = twill3.commands.reset_browser()
+    twill3.commands.browser = _EasyTwillBrowser()
     return result
+
 
 # Monkey-patch our custom browser into twill; this will be global, but
 # will only have an actual effect when intercepts are installed through
@@ -355,4 +355,4 @@ def url(should_be=None):
     if should_be is None:
         return get_browser().get_url()
     else:
-        return twill.commands.url(should_be)
+        return twill3.commands.url(should_be)

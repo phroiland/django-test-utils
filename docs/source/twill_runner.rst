@@ -20,19 +20,19 @@ specify the target url as arguments to Django's ``reverse()``.
 
 Usage::
 
-    twill.setup()
+    twill3.setup()
     try:
-        twill.go('/')                     # --> Django WSGI
-        twill.code(200)
+        twill3.go('/')                     # --> Django WSGI
+        twill3.code(200)
 
-        twill.go('http://google.com')
-        twill.go('/services')             # --> http://google.com/services
+        twill3.go('http://google.com')
+        twill3.go('/services')             # --> http://google.com/services
 
-        twill.go('/list', default=True)   # --> back to Django WSGI
+        twill3.go('/list', default=True)   # --> back to Django WSGI
 
-        twill.go('proj.app.views.func',
+        twill3.go('proj.app.views.func',
                  args=[1,2,3])
     finally:
-        twill.teardown()
+        twill3.teardown()
 
-For more information about twill, see: http://twill.idyll.org/
+For more information about twill3
