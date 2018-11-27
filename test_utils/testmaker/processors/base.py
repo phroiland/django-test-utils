@@ -75,9 +75,9 @@ class Processer(object):
     def _log_request(self, request):
         method = request.method.lower()
         request_str = "'%s', {" % request.path
-        for dikt in request.REQUEST.dicts:
+        for dikt in request.GET.dicts:
             for arg in dikt:
-                request_str += "'%s': '%s', " % (arg, request.REQUEST[arg])
+                request_str += "'%s': '%s', " % (arg, request.GET[arg])
         request_str += "}"
 
         template = Template(self._get_template('test'))

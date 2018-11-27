@@ -21,7 +21,6 @@ class Serializer(object):
 
             'GET': request.GET,
             'POST': request.POST,
-            'REQUEST': request.REQUEST,
             'method': request.method,
         }
         return request_dict

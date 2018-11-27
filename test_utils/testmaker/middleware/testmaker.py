@@ -7,8 +7,8 @@ from test_utils.testmaker import processors
 from test_utils.testmaker import serializers
 from test_utils.testmaker import Testmaker
 
-#Remove at your own peril.
-#Thar be sharks in these waters.
+# Remove at your own peril.
+# Thar be sharks in these waters.
 debug = getattr(settings, 'DEBUG', False)
 """
 if not debug:
@@ -20,7 +20,6 @@ else:
 if not Testmaker.enabled:
     testmaker = Testmaker(verbosity=0)
     testmaker.prepare()
-
 
 SHOW_TESTMAKER_HEADER = getattr(settings, 'SHOW_TESTMAKER_HEADER', False)
 
@@ -54,25 +53,24 @@ class TestMakerMiddleware(object):
         This outputs the requests to the chosen Serializers.
         Possible running it through one or many Processors
         """
-        #This is request.REQUEST to catch POST and GET
-        if 'test_client_true' not in request.REQUEST:
+        # This is request.REQUEST to catch POST and GET
+        if 'test_client_true' not in request.GET:
             request.logfile = Testmaker.logfile()
             self.serializer.save_request(request)
             self.processor.save_request(request)
-            #We only want to re-run the request on idempotent requests
+            # We only want to re-run the request on idempotent requests
             if request.method.lower() == "get":
                 setup_test_environment()
                 c = Client(REMOTE_ADDR='127.0.0.1')
                 getdict = request.GET.copy()
-                getdict['test_client_true'] = 'yes' #avoid recursion
+                getdict['test_client_true'] = 'yes'  # avoid recursion
                 response = c.get(request.path, getdict)
                 self.serializer.save_response(request, response)
                 self.processor.save_response(request, response)
         return None
 
     def process_response(self, request, response):
-        if 'test_client_true' not in request.REQUEST \
-        and SHOW_TESTMAKER_HEADER:
+        if 'test_client_true' not in request.GET and SHOW_TESTMAKER_HEADER:
             c = Context({'file': Testmaker.logfile()})
             s = RESPONSE_TEMPLATE.render(c)
             response.content = str(s) + str(response.content)
