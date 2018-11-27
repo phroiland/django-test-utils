@@ -50,8 +50,10 @@ class Testmaker(object):
     def set_paths(self):
         if self.app:
             print('app:', self.app)
-            self.app_name = self.app.__str__
-            self.base_dir = path.dirname(self.app.__file__)
+            self.app_name = self.app.name
+            print(self.app_name)
+            self.base_dir = path.dirname(self.app.path)
+            print(self.base_dir)
         else:
             self.app_name = 'tmp'
             # TODO: Need to make this platform independent.
