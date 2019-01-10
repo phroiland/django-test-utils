@@ -182,18 +182,20 @@ class Crawler(object):
             current_depth, from_url, to_url = self.not_crawled.pop(0)
             if current_depth > max_depth:
                 continue
-
-            transaction.enter_transaction_management()
             try:
-                resp, returned_urls = self.get_url(from_url, to_url)
-            except HTMLParser as e:
-                LOG.error("%s: unable to parse invalid HTML: %s", to_url, e)
-            except Exception as e:
-                LOG.exception("%s had unhandled exception: %s", to_url, e)
+                transaction.enter_transaction_management()
+                try:
+                    resp, returned_urls = self.get_url(from_url, to_url)
+                except HTMLParser as e:
+                    LOG.error("%s: unable to parse invalid HTML: %s", to_url, e)
+                except Exception as e:
+                    LOG.exception("%s had unhandled exception: %s", to_url, e)
+                    continue
+                finally:
+                    transaction.rollback()
+            except AttributeError:
                 continue
-            finally:
-                transaction.rollback()
-
+                
             self.crawled[to_url] = True
             # Find its links that haven't been crawled
             for base_url in returned_urls:
