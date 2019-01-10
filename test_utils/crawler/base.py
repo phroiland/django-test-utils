@@ -1,4 +1,4 @@
-from html.parser import HTMLParseError
+from html.parser import HTMLParser
 import logging
 import os
 import urllib.parse
@@ -22,7 +22,7 @@ try:
         try:
             tree = lxml.html.document_fromstring(html)
         except lxml.etree.ParseError as e:
-            raise HTMLParseError(str(e), e.position)
+            raise HTMLParser(str(e), e.position)
 
         for element, attribute, link, pos in tree.iterlinks():
             yield link
@@ -186,7 +186,7 @@ class Crawler(object):
             transaction.enter_transaction_management()
             try:
                 resp, returned_urls = self.get_url(from_url, to_url)
-            except HTMLParseError as e:
+            except HTMLParser as e:
                 LOG.error("%s: unable to parse invalid HTML: %s", to_url, e)
             except Exception as e:
                 LOG.exception("%s had unhandled exception: %s", to_url, e)
