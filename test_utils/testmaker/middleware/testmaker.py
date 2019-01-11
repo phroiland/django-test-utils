@@ -71,6 +71,14 @@ class TestMakerMiddleware(object):
                     teardown_test_environment()
                 except RuntimeError:
                     teardown_test_environment()
+                    setup_test_environment()
+                    c = Client(REMOTE_ADDR='127.0.0.1')
+                    getdict = request.GET.copy()
+                    getdict['test_client_true'] = 'yes'  # avoid recursion
+                    response = c.get(request.path, getdict)
+                    self.serializer.save_response(request, response)
+                    self.processor.save_response(request, response)
+                    teardown_test_environment()
         return None
 
     def process_response(self, request, response):
